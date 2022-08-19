@@ -1,0 +1,40 @@
+version: '3.0'
+
+services:
+  nginx:
+    image: nginx:latest
+    volumes:
+      - ./:/var/www/
+      - ./_docker/nginx/conf.d/:/etc/nginx/conf.d/
+    ports:
+      - 80:80
+    depends_on:
+      - app #pastdigi app service normalniy ishlaganda nginx service ishlasin
+    container_name: project_nginx
+
+  app: #php servici. uni nastroykalari Dockerfile dan olinadi
+    build:
+      context: .
+      dockerfile: _docker/app/Dockerfile
+    volumes:
+      - ./:/var/www/
+    depends_on:
+      - db #pastdigi db ishga tushsagina bu service ham ishga tushsin
+    container_name: project_app
+
+  db:
+    image: mysql:8.0
+    restart: always #agar ushbu service nmadir xatolik bolib otirib qolsa boshqattan ishlatvorish
+    volumes:
+      - ./tmp/db:/var/lib/mysql
+    environment:
+      MYSQL_DATABASE: hosting_project
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - 8101:3306
+    command: mysqld --character-set-server=utf8 --collation-server=utf8_unicode_ci
+    container_name: project_db
+
+
+
+
